@@ -4,42 +4,57 @@
 // Global scheduler (extern from main.ino)
 extern Scheduler runner;
 
-class MotorLineal
+class MotorPersiana
 {
 private:
     uint8_t pinUp;
     uint8_t pinDown;
-    int maxMillisOpened;
-    int millisOpened = 0;
+    uint8_t pinStop;
+    bool isUp = false;
     bool active = false;
 
     Task tStop;
+    Task tStopPress;
 
     // Static callback – retrieves 'this' via LTS
     static void stopCallback()
     {
-        MotorLineal *self = static_cast<MotorLineal *>(runner.currentTask().getLtsPointer());
+        MotorPersiana *self = static_cast<MotorPersiana *>(runner.currentTask().getLtsPointer());
         if (self)
         {
             self->stopMovement();
         }
     }
 
+    static void stopPressCallBack()
+    {
+        MotorPersiana *self = static_cast<MotorPersiana *>(runner.currentTask().getLtsPointer());
+        if (self)
+        {
+            self->stopPress();
+        }
+    }
+
 public:
     // CONSTRUCTOR
-    MotorLineal(uint8_t up, uint8_t down, int maxTime)
-        : pinUp(up), pinDown(down), maxMillisOpened(maxTime),
-          tStop(0, TASK_ONCE, &MotorLineal::stopCallback, &runner, false)
+    MotorPersiana(uint8_t up, uint8_t down, uint8_t stop)
+        : pinUp(up), pinDown(down), pinStop(stop),
+          tStop(0, TASK_ONCE, &MotorPersiana::stopCallback, &runner, false),
+          tStopPress(0, TASK_ONCE, &MotorPersiana::stopPressCallBack, &runner, false)
     {
         pinMode(pinUp, OUTPUT);
         pinMode(pinDown, OUTPUT);
+        pinMode(pinStop, OUTPUT);
         digitalWrite(pinUp, LOW);
         digitalWrite(pinDown, LOW);
+        digitalWrite(pinStop, LOW);
 
         // Store 'this' pointer via LTS (enabled by the #define)
         tStop.setLtsPointer(static_cast<void *>(this));
+        tStopPress.setLtsPointer(static_cast<void *>(this));
 
         runner.addTask(tStop);
+        runner.addTask(tStopPress);
     }
 
     void goUpTimed(int ms)
@@ -49,15 +64,11 @@ public:
             // Serial.println("Cant go down. Movement active.");
             return;
         };
-        if ((millisOpened + ms) > maxMillisOpened)
-        {
-            // Serial.println("Cant go up specified time. Lower Ceiling Reached. Going down the maximum available.");
-            ms = maxMillisOpened - millisOpened;
-        };
         digitalWrite(pinDown, LOW);
         digitalWrite(pinUp, HIGH);
         active = true;
-        millisOpened += ms;
+        tStopPress.setInterval(100);
+        tStopPress.restartDelayed();
 
         tStop.setInterval(ms);
         tStop.restartDelayed();
@@ -70,15 +81,13 @@ public:
             // Serial.println("Cant go down. Movement active.");
             return;
         };
-        if ((millisOpened - ms) < 0)
-        {
-            // Serial.println("Cant go down specified time. Lower Ceiling Reached. Going down the maximum available.");
-            ms = millisOpened;
-        };
         digitalWrite(pinUp, LOW);
+        digitalWrite(pinStop, LOW);
         digitalWrite(pinDown, HIGH);
         active = true;
-        millisOpened -= ms;
+        tStopPress.setInterval(100);
+        tStopPress.restartDelayed();
+
         tStop.setInterval(ms);
         tStop.restartDelayed();
     }
@@ -90,10 +99,14 @@ public:
             // Serial.println("Cant go max up. Movement active.");
             return;
         };
-        int remaining = maxMillisOpened - millisOpened;
-        // Serial.println(String("Going up max distance. The current positon is: ") + millisOpened + " the max is: " + maxMillisOpened + " And we will move: " + remaining);
-        if (remaining > 0)
-            goUpTimed(static_cast<unsigned long>(remaining));
+        digitalWrite(pinDown, LOW);
+        digitalWrite(pinStop, LOW);
+        digitalWrite(pinUp, HIGH);
+        active = true;
+        
+        tStopPress.setInterval(100);
+        tStopPress.restartDelayed();
+
     }
 
     void goDownMax()
@@ -103,21 +116,25 @@ public:
             // Serial.println("Cant go max down. Movement active.");
             return;
         };
-        int toClose = millisOpened;
-        // Serial.println(String("Going down max distance. The current positon is: ") + millisOpened + " the min is: " + 0 + " And we will move: " + toClose);
-        if (toClose > 0)
-            goDownTimed(static_cast<unsigned long>(toClose));
+        tStopPress.setInterval(100);
+        tStopPress.restartDelayed();
+        active = true;
     }
 
     void stopMovement()
     {
-        if (active)
-        {
-            digitalWrite(pinUp, LOW);
-            digitalWrite(pinDown, LOW);
-            active = false;
-            // Serial.println("Movement stopped");
-        }
+        digitalWrite(pinStop, HIGH);
+
+        tStopPress.setInterval(100);
+        tStopPress.restartDelayed();
+    }
+
+    void stopPress()
+    {
+        digitalWrite(pinUp, LOW);
+        digitalWrite(pinDown, LOW);
+        digitalWrite(pinStop, LOW);
+        active = false;
     }
 
     void startUpMovement()
@@ -143,13 +160,5 @@ public:
     boolean getActive()
     {
         return active;
-    }
-
-    void setMillisOpened(int millis) {
-        millisOpened = millis;
-    }
-
-    int getMaxMillisOpened() {
-        return maxMillisOpened;
     }
 };
