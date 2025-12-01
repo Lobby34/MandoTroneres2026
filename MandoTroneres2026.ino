@@ -9,6 +9,7 @@
 #include "./enviroment_pins.h"       //Import Declaration of enviroment variables
 #include "./enviroment_dmx.h"
 #include "./Classes/motorPersiana.cpp"
+#include "./Controllers/movementController.cpp"
 
 // DMX Startup
 DMX_Slave dmx_slave(DMX_SLAVE_CHANNELS);
@@ -16,8 +17,6 @@ DMX_Slave dmx_slave(DMX_SLAVE_CHANNELS);
 // Variable Delaration
 Scheduler runner;           // Global – used by motorLineal
 boolean showActive = false; // Global - used to know if show is active
-
-  bool hewo = true;
 
 // Object declaration
 MotorLineal leftMouth(MOTOR_1_A_PIN, MOTOR_1_B_PIN, MOTOR_1_MAX_MILLIS_OPENED);
@@ -86,53 +85,6 @@ Task tTimeline(
     } },
     &runner, false);
 
-void checkMovementCommand(MotorLineal &motor, int manualChannel, int manualFixedChannel, int autoChannel)
-{
-  // MANUAL MOVEMENT
-  switch (dmx_slave.getChannelValue(manualChannel))
-  {
-  // STAY STILL
-  case 0 ... 127:
-    motor.stopMovement();
-    break;
-
-  // GO DOWN
-  case 128 ... 191:
-    motor.startDownMovement();
-    break;
-
-  // GO UP
-  case 192 ... 255:
-    motor.startUpMovement();
-    break;
-
-  default:
-    motor.stopMovement();
-    break;
-  }
-
-  // MANUAL FIXED && AUTO MOVEMENT
-  if (dmx_slave.getChannelValue(manualChannel) < 128)
-  {
-    switch (dmx_slave.getChannelValue(manualFixedChannel))
-    {
-    case 0 ... 127:
-      break;
-    case 128 ... 191:
-      motor.goUpMax();
-      break;
-    case 192 ... 255:
-      motor.goDownMax();
-    default:
-      break;
-    }
-  }
-  else if (dmx_slave.getChannelValue(manualChannel) < 128 && dmx_slave.getChannelValue(manualFixedChannel) < 128 && dmx_slave.getChannelValue(autoChannel) > 128)
-  {
-    // HERE GOES THE AUTO TASK
-  }
-}
-
 void setup()
 {
   // DMX SETUP
@@ -178,11 +130,11 @@ void loop()
       }
 
       //CHECK ALL MOVEMENT COMMANDS OF ALL MOTORS
-      checkMovementCommand(leftMouth, DMX_LEFTMOUTH_MANUAL_CHANNEL,DMX_LEFTMOUTH_MANUALFIXED_CHANNEL,DMX_LEFTMOUTH_AUTO_CHANNEL);
-      checkMovementCommand(centralMouth, DMX_CENTRALMOUTH_MANUAL_CHANNEL,DMX_CENTRALMOUTH_MANUALFIXED_CHANNEL,DMX_CENTRALMOUTH_AUTO_CHANNEL);
-      checkMovementCommand(rightMouth, DMX_RIGHTMOUTH_MANUAL_CHANNEL,DMX_RIGHTMOUTH_MANUALFIXED_CHANNEL,DMX_RIGHTMOUTH_AUTO_CHANNEL);
-      checkMovementCommand(leftHead,DMX_LEFTHEAD_MANUAL_CHANNEL,DMX_LEFTHEAD_MANUALFIXED_CHANNEL,DMX_LEFTHEAD_AUTO_CHANNEL);
-      checkMovementCommand(rightHead,DMX_RIGHTHEAD_MANUAL_CHANNEL,DMX_RIGHTHEAD_MANUALFIXED_CHANNEL,DMX_RIGHTHEAD_AUTO_CHANNEL);
+      checkMovementCommand(dmx_slave, leftMouth, DMX_LEFTMOUTH_MANUAL_CHANNEL,DMX_LEFTMOUTH_MANUALFIXED_CHANNEL,DMX_LEFTMOUTH_AUTO_CHANNEL);
+      checkMovementCommand(dmx_slave, centralMouth, DMX_CENTRALMOUTH_MANUAL_CHANNEL,DMX_CENTRALMOUTH_MANUALFIXED_CHANNEL,DMX_CENTRALMOUTH_AUTO_CHANNEL);
+      checkMovementCommand(dmx_slave, rightMouth, DMX_RIGHTMOUTH_MANUAL_CHANNEL,DMX_RIGHTMOUTH_MANUALFIXED_CHANNEL,DMX_RIGHTMOUTH_AUTO_CHANNEL);
+      checkMovementCommand(dmx_slave, leftHead,DMX_LEFTHEAD_MANUAL_CHANNEL,DMX_LEFTHEAD_MANUALFIXED_CHANNEL,DMX_LEFTHEAD_AUTO_CHANNEL);
+      checkMovementCommand(dmx_slave, rightHead,DMX_RIGHTHEAD_MANUAL_CHANNEL,DMX_RIGHTHEAD_MANUALFIXED_CHANNEL,DMX_RIGHTHEAD_AUTO_CHANNEL);
     }
   }
 }
