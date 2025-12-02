@@ -114,10 +114,12 @@ void loop()
     // PRESHOW
     else if (dmx_slave.getChannelValue(DMX_PRESHOW_CHANNEL) > 192)
     {
+
     }
     // EXAMPLE SHOW
     else if (dmx_slave.getChannelValue(DMX_EXAMPLESHOW_CHANNEL) > 192)
     {
+      
     }
     else
     {

@@ -103,10 +103,9 @@ public:
         digitalWrite(pinStop, LOW);
         digitalWrite(pinUp, HIGH);
         active = true;
-        
+
         tStopPress.setInterval(100);
         tStopPress.restartDelayed();
-
     }
 
     void goDownMax()
@@ -144,6 +143,8 @@ public:
             digitalWrite(pinDown, LOW);
             digitalWrite(pinUp, HIGH);
             active = true;
+            tStopPress.setInterval(100);
+            tStopPress.restartDelayed();
         }
     }
 
@@ -154,6 +155,8 @@ public:
             digitalWrite(pinUp, LOW);
             digitalWrite(pinDown, HIGH);
             active = true;
+            tStopPress.setInterval(100);
+            tStopPress.restartDelayed();
         }
     }
 
