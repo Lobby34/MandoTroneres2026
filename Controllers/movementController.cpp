@@ -2,47 +2,54 @@
 
 void checkMovementCommand(DMX_Slave &dmx_slave, MotorLineal &motor, int manualChannel, int manualFixedChannel, int autoChannel)
 {
-  // MANUAL MOVEMENT
-  switch (dmx_slave.getChannelValue(manualChannel))
-  {
-  // STAY STILL
-  case 0 ... 127:
-    motor.stopMovement();
-    break;
+  int m = dmx_slave.getChannelValue(manualChannel);
+  int mf = dmx_slave.getChannelValue(manualFixedChannel);
+  int a = dmx_slave.getChannelValue(autoChannel);
 
-  // GO DOWN
-  case 128 ... 191:
+  // ----- 1. MANUAL MOVEMENT -----
+  const int DEAD_LOW = 181;  // dead zone lower bound
+  const int DEAD_HIGH = 199; // dead zone upper bound
+
+  if (m >= 128 && m <= 180)
+  {
     motor.startDownMovement();
-    break;
-
-  // GO UP
-  case 192 ... 255:
+    return; // manual overrides everything else
+  }
+  else if (m >= 200 && m <= 255)
+  {
     motor.startUpMovement();
-    break;
-
-  default:
-    motor.stopMovement();
-    break;
+    return; // manual overrides everything else
   }
-
-  // MANUAL FIXED && AUTO MOVEMENT
-  if (dmx_slave.getChannelValue(manualChannel) < 128)
+  else if (m >= DEAD_LOW && m <= DEAD_HIGH)
   {
-    switch (dmx_slave.getChannelValue(manualFixedChannel))
-    {
-    case 0 ... 127:
-      break;
-    case 128 ... 191:
-      motor.goUpMax();
-      break;
-    case 192 ... 255:
-      motor.goDownMax();
-    default:
-      break;
-    }
+    motor.stopMovement(); // dead zone, do nothing
+    return;
   }
-  else if (dmx_slave.getChannelValue(manualChannel) < 128 && dmx_slave.getChannelValue(manualFixedChannel) < 128 && dmx_slave.getChannelValue(autoChannel) > 128)
+  // else m < 128 → neutral, continue to next step
+
+  // ----- 2. MANUAL FIXED -----
+  if (mf >= 128 && mf <= 180)
   {
-    // HERE GOES THE AUTO TASK
+    motor.goDownMax();
+    return; // manual-fixed down
   }
+  else if (mf >= 200 && mf <= 255)
+  {
+    motor.goUpMax();
+    return; // manual-fixed up
+  }
+  else if (mf >= DEAD_LOW && mf <= DEAD_HIGH)
+  {
+    return;
+  }
+
+  // ----- 3. AUTO MODE -----
+  if (a > 128)
+  {
+    // TODO: put your auto movement task here
+    return;
+  }
+
+  // ----- 4. DEFAULT -----
+  motor.stopMovement();
 }
