@@ -14,6 +14,7 @@ private:
     bool active = false;
 
     Task tStop;
+    Task tAuto;
 
     // Static callback – retrieves 'this' via LTS
     static void stopCallback()
@@ -25,11 +26,21 @@ private:
         }
     }
 
+    static void autoCallback()
+    {
+        MotorLineal *self = static_cast<MotorLineal *>(runner.currentTask().getLtsPointer());
+        if (self)
+        {
+            self->goDownMax();
+        }
+    }
+
 public:
     // CONSTRUCTOR
     MotorLineal(uint8_t up, uint8_t down, int maxTime)
         : pinUp(up), pinDown(down), maxMillisOpened(maxTime),
-          tStop(0, TASK_ONCE, &MotorLineal::stopCallback, &runner, false)
+          tStop(0, TASK_ONCE, &MotorLineal::stopCallback, &runner, false),
+          tAuto(0, TASK_ONCE, &MotorLineal::autoCallback, &runner, false)
     {
         pinMode(pinUp, OUTPUT);
         pinMode(pinDown, OUTPUT);
@@ -38,8 +49,10 @@ public:
 
         // Store 'this' pointer via LTS (enabled by the #define)
         tStop.setLtsPointer(static_cast<void *>(this));
+        tAuto.setLtsPointer(static_cast<void *>(this));
 
         runner.addTask(tStop);
+        runner.addTask(tAuto);
     }
 
     void goUpTimed(int ms)
@@ -118,6 +131,17 @@ public:
             active = false;
             // Serial.println("Movement stopped");
         }
+    }
+
+    void startAutoMovement()
+    {
+        if(active)
+        {
+           return; 
+        }
+        goUpMax();
+        tAuto.setInterval(maxMillisOpened - millisOpened);
+        tAuto.restartDelayed();
     }
 
     void startUpMovement()
