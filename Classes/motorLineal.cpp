@@ -44,8 +44,8 @@ public:
     {
         pinMode(pinUp, OUTPUT);
         pinMode(pinDown, OUTPUT);
-        digitalWrite(pinUp, LOW);
-        digitalWrite(pinDown, LOW);
+        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinDown, HIGH);
 
         // Store 'this' pointer via LTS (enabled by the #define)
         tStop.setLtsPointer(static_cast<void *>(this));
@@ -67,8 +67,8 @@ public:
             // Serial.println("Cant go up specified time. Lower Ceiling Reached. Going down the maximum available.");
             ms = maxMillisOpened - millisOpened;
         };
-        digitalWrite(pinDown, LOW);
-        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinDown, HIGH);
+        digitalWrite(pinUp, LOW);
         active = true;
         millisOpened += ms;
 
@@ -88,8 +88,8 @@ public:
             // Serial.println("Cant go down specified time. Lower Ceiling Reached. Going down the maximum available.");
             ms = millisOpened;
         };
-        digitalWrite(pinUp, LOW);
-        digitalWrite(pinDown, HIGH);
+        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinDown, LOW);
         active = true;
         millisOpened -= ms;
         tStop.setInterval(ms);
@@ -126,8 +126,8 @@ public:
     {
         if (active)
         {
-            digitalWrite(pinUp, LOW);
-            digitalWrite(pinDown, LOW);
+            digitalWrite(pinUp, HIGH);
+            digitalWrite(pinDown, HIGH);
             active = false;
             // Serial.println("Movement stopped");
         }
@@ -148,8 +148,8 @@ public:
     {
         if (!active)
         {
-            digitalWrite(pinDown, LOW);
-            digitalWrite(pinUp, HIGH);
+            digitalWrite(pinDown, HIGH);
+            digitalWrite(pinUp, LOW);
             active = true;
         }
     }
@@ -158,8 +158,8 @@ public:
     {
         if (!active)
         {
-            digitalWrite(pinUp, LOW);
-            digitalWrite(pinDown, HIGH);
+            digitalWrite(pinUp, HIGH);
+            digitalWrite(pinDown, LOW);
             active = true;
         }
     }

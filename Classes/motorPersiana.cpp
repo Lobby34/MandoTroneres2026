@@ -45,9 +45,9 @@ public:
         pinMode(pinUp, OUTPUT);
         pinMode(pinDown, OUTPUT);
         pinMode(pinStop, OUTPUT);
-        digitalWrite(pinUp, LOW);
-        digitalWrite(pinDown, LOW);
-        digitalWrite(pinStop, LOW);
+        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinDown, HIGH);
+        digitalWrite(pinStop, HIGH);
 
         // Store 'this' pointer via LTS (enabled by the #define)
         tStop.setLtsPointer(static_cast<void *>(this));
@@ -64,8 +64,8 @@ public:
             // Serial.println("Cant go down. Movement active.");
             return;
         };
-        digitalWrite(pinDown, LOW);
-        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinDown, HIGH);
+        digitalWrite(pinUp, LOW);
         active = true;
         tStopPress.setInterval(100);
         tStopPress.restartDelayed();
@@ -81,9 +81,9 @@ public:
             // Serial.println("Cant go down. Movement active.");
             return;
         };
-        digitalWrite(pinUp, LOW);
-        digitalWrite(pinStop, LOW);
-        digitalWrite(pinDown, HIGH);
+        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinStop, HIGH);
+        digitalWrite(pinDown, LOW);
         active = true;
         tStopPress.setInterval(100);
         tStopPress.restartDelayed();
@@ -99,9 +99,9 @@ public:
             // Serial.println("Cant go max up. Movement active.");
             return;
         };
-        digitalWrite(pinDown, LOW);
-        digitalWrite(pinStop, LOW);
-        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinDown, HIGH);
+        digitalWrite(pinStop, HIGH);
+        digitalWrite(pinUp, LOW);
         active = true;
 
         tStopPress.setInterval(100);
@@ -122,7 +122,7 @@ public:
 
     void stopMovement()
     {
-        digitalWrite(pinStop, HIGH);
+        digitalWrite(pinStop, LOW);
 
         tStopPress.setInterval(100);
         tStopPress.restartDelayed();
@@ -130,9 +130,9 @@ public:
 
     void stopPress()
     {
-        digitalWrite(pinUp, LOW);
-        digitalWrite(pinDown, LOW);
-        digitalWrite(pinStop, LOW);
+        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinDown, HIGH);
+        digitalWrite(pinStop, HIGH);
         active = false;
     }
 
@@ -140,8 +140,8 @@ public:
     {
         if (!active)
         {
-            digitalWrite(pinDown, LOW);
-            digitalWrite(pinUp, HIGH);
+            digitalWrite(pinDown, HIGH);
+            digitalWrite(pinUp, LOW);
             active = true;
             tStopPress.setInterval(100);
             tStopPress.restartDelayed();
@@ -152,8 +152,8 @@ public:
     {
         if (!active)
         {
-            digitalWrite(pinUp, LOW);
-            digitalWrite(pinDown, HIGH);
+            digitalWrite(pinUp, HIGH);
+            digitalWrite(pinDown, LOW);
             active = true;
             tStopPress.setInterval(100);
             tStopPress.restartDelayed();
