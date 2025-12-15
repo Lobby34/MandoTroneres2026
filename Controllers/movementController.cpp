@@ -46,7 +46,7 @@ void checkMovementCommand(DMX_Slave &dmx_slave, MotorLineal &motor, int manualCh
   // ----- 3. AUTO MODE -----
   if (a > 128)
   {
-    // TODO: put your auto movement task here
+    motor.startAutoMovement();
     return;
   }
 

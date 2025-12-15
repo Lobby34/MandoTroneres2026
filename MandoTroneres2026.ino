@@ -10,8 +10,8 @@
 #include "./enviroment_dmx.h"
 #include "./Classes/motorPersiana.cpp"
 #include "./Controllers/movementController.cpp"
-#include "./Controllers/taskController.h"
-#include "./Controllers/taskController.cpp"
+// #include "./Controllers/taskController.h"
+// #include "./Controllers/taskController.cpp"
 
 // DMX Startup
 DMX_Slave dmx_slave(DMX_SLAVE_CHANNELS);
@@ -29,63 +29,63 @@ MotorLineal rightHead(MOTOR_5_A_PIN,MOTOR_5_B_PIN,MOTOR_5_MAX_MILLIS_OPENED);
 
 MotorPersiana centralHead(BLIND_1_A_PIN, BLIND_1_B_PIN, BLIND_1_C_PIN);
 
-// // Show "Class"
-// using TimelineEvent = struct
-// {
-//   unsigned long timeMs;
-//   void (*action)();
-// };
+// Show "Class"
+using TimelineEvent = struct
+{
+  unsigned long timeMs;
+  void (*action)();
+};
 
-// // Show Timeline
-// TimelineEvent timeline[] = {
-//     {0, []
-//      {
-//        showActive = true;
-//      }},
-//     {1000, []
-//      {
-//        leftMouth.goUpTimed(5000);
-//      }},
-//     {2300, []
-//      {
-//        centralMouth.goUpMax();
-//      }},
-//     {6010, []
-//      {
-//        leftMouth.goDownTimed(1000);
-//      }},
-//     {7020, []
-//      {
-//        leftMouth.goDownMax();
-//      }},
-//     {11030, []
-//      {
-//        leftMouth.goUpMax();
-//      }},
-//     {21040, []
-//      {
-//        showActive = false;
-//      }}};
+// Show Timeline
+TimelineEvent timeline[] = {
+    {0, []
+     {
+       showActive = true;
+     }},
+    {1000, []
+     {
+       leftMouth.goUpTimed(5000);
+     }},
+    {2300, []
+     {
+       centralMouth.goUpMax();
+     }},
+    {6010, []
+     {
+       leftMouth.goDownTimed(1000);
+     }},
+    {7020, []
+     {
+       leftMouth.goDownMax();
+     }},
+    {11030, []
+     {
+       leftMouth.goUpMax();
+     }},
+    {21040, []
+     {
+       showActive = false;
+     }}};
 
-// // Calculate the space each position of the array takes
-// const int numOfEventsInTimeline = sizeof(timeline) / sizeof(timeline[0]);
+// Calculate the space each position of the array takes
+const int numOfEventsInTimeline = sizeof(timeline) / sizeof(timeline[0]);
 
-// // Task declaration to run the showTimeline
-// Task tTimeline(
-//     10, -1, []
-//     {
-//     static int index = 0;
-//     unsigned long now = millis();
+// Task declaration to run the showTimeline
+Task tTimeline(
+    10, -1, []
+    {
+    static int index = 0;
+    unsigned long now = millis();
 
-//     while (index < numOfEventsInTimeline && timeline[index].timeMs <= now) {
-//       timeline[index].action();
-//       index++;
-//     }
+    while (index < numOfEventsInTimeline && timeline[index].timeMs <= now) {
+      timeline[index].action();
+      index++;
+    }
 
-//     if (index >= numOfEventsInTimeline) {
-//       tTimeline.disable();
-//     } },
-//     &runner, false);
+    if (index >= numOfEventsInTimeline) {
+      tTimeline.disable();
+    } },
+    &runner, false);
 
 void setup()
 {
