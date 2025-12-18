@@ -68,7 +68,7 @@ public:
             ms = maxMillisOpened - millisOpened;
         };
         digitalWrite(pinDown, HIGH);
-        digitalWrite(pinUp, LOW);
+        digitalWrite(pinUp, HIGH);
         active = true;
         millisOpened += ms;
 
