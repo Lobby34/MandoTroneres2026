@@ -13,9 +13,9 @@ private:
     int millisOpened = 0;
     bool active = false;
     bool latched = false;
+    bool doingAutoCycle = false;
 
     Task tStop;
-    Task tAuto;
 
     // Static callback – retrieves 'this' via LTS
     static void stopCallback()
@@ -27,21 +27,11 @@ private:
         }
     }
 
-    static void autoCallback()
-    {
-        MotorLineal *self = static_cast<MotorLineal *>(runner.currentTask().getLtsPointer());
-        if (self)
-        {
-            self->goDownMax();
-        }
-    }
-
 public:
     // CONSTRUCTOR
     MotorLineal(uint8_t up, uint8_t down, int maxTime)
         : pinUp(up), pinDown(down), maxMillisOpened(maxTime),
-          tStop(0, TASK_ONCE, &MotorLineal::stopCallback, &runner, false),
-          tAuto(0, TASK_ONCE, &MotorLineal::autoCallback, &runner, false)
+          tStop(0, TASK_ONCE, &MotorLineal::stopCallback, &runner, false)
     {
         pinMode(pinUp, OUTPUT);
         pinMode(pinDown, OUTPUT);
@@ -50,12 +40,12 @@ public:
 
         // Store 'this' pointer via LTS (enabled by the #define)
         tStop.setLtsPointer(static_cast<void *>(this));
-        tAuto.setLtsPointer(static_cast<void *>(this));
 
         runner.addTask(tStop);
         runner.addTask(tAuto);
     }
 
+    // MOTOR FUNCTIONS AND LOGIC
     void goUpTimed(int ms)
     {
         if (active)
@@ -108,6 +98,8 @@ public:
         // Serial.println(String("Going up max distance. The current positon is: ") + millisOpened + " the max is: " + maxMillisOpened + " And we will move: " + remaining);
         if (remaining > 0)
             goUpTimed(static_cast<unsigned long>(remaining));
+        else
+            handleMovementFinished();
     }
 
     void goDownMax()
@@ -121,6 +113,8 @@ public:
         // Serial.println(String("Going down max distance. The current positon is: ") + millisOpened + " the min is: " + 0 + " And we will move: " + toClose);
         if (toClose > 0)
             goDownTimed(static_cast<unsigned long>(toClose));
+        else
+            handleMovementFinished();
     }
 
     void startAutoMovement()
@@ -129,9 +123,10 @@ public:
         {
             return;
         }
+        latched = true;
+        doingAutoCycle = true;
+
         goUpMax();
-        tAuto.setInterval(maxMillisOpened - millisOpened);
-        tAuto.restartDelayed();
     }
 
     void startUpMovement()
@@ -158,15 +153,41 @@ public:
 
     void stopMovement()
     {
-        if (active)
+        digitalWrite(pinUp, HIGH);
+        ditialWrite(pinDown, HIGH);
+        active = false;
+    }
+    
+    void stopManualMovement() {
+        tStop.disable();
+        stopMovement();
+        latched = false;
+        doingAutoCycle = false;
+    }
+
+    void handleMovementFinished()
+    {
+        stopMovement();
+
+        if (doingAutoCycle)
         {
-            digitalWrite(pinUp, HIGH);
-            digitalWrite(pinDown, HIGH);
-            active = false;
+            if (millisOpened >= maxMillisOpened)
+            {
+                goDownMax();
+            }
+            else if (millisOpened <= 0)
+            {
+                doingAutoCycle = false;
+                latched = false;
+            }
+        }
+        else
+        {
             latched = false;
-            // Serial.println("Movement stopped");
         }
     }
+
+    /** SETTERS AND GETTERS **/
 
     bool getActive()
     {
