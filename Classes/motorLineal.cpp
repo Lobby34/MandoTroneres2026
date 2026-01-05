@@ -12,6 +12,7 @@ private:
     int maxMillisOpened;
     int millisOpened = 0;
     bool active = false;
+    bool latched = false;
 
     Task tStop;
     Task tAuto;
@@ -68,7 +69,7 @@ public:
             ms = maxMillisOpened - millisOpened;
         };
         digitalWrite(pinDown, HIGH);
-        digitalWrite(pinUp, HIGH);
+        digitalWrite(pinUp, LOW);
         active = true;
         millisOpened += ms;
 
@@ -100,9 +101,9 @@ public:
     {
         if (active)
         {
-            // Serial.println("Cant go max up. Movement active.");
             return;
         };
+        latched = true;
         int remaining = maxMillisOpened - millisOpened;
         // Serial.println(String("Going up max distance. The current positon is: ") + millisOpened + " the max is: " + maxMillisOpened + " And we will move: " + remaining);
         if (remaining > 0)
@@ -113,31 +114,20 @@ public:
     {
         if (active)
         {
-            // Serial.println("Cant go max down. Movement active.");
             return;
         };
+        latched = true;
         int toClose = millisOpened;
         // Serial.println(String("Going down max distance. The current positon is: ") + millisOpened + " the min is: " + 0 + " And we will move: " + toClose);
         if (toClose > 0)
             goDownTimed(static_cast<unsigned long>(toClose));
     }
 
-    void stopMovement()
+    void startAutoMovement()
     {
         if (active)
         {
-            digitalWrite(pinUp, HIGH);
-            digitalWrite(pinDown, HIGH);
-            active = false;
-            // Serial.println("Movement stopped");
-        }
-    }
-
-    void startAutoMovement()
-    {
-        if(active)
-        {
-           return; 
+            return;
         }
         goUpMax();
         tAuto.setInterval(maxMillisOpened - millisOpened);
@@ -151,6 +141,7 @@ public:
             digitalWrite(pinDown, HIGH);
             digitalWrite(pinUp, LOW);
             active = true;
+            latched = false;
         }
     }
 
@@ -161,19 +152,39 @@ public:
             digitalWrite(pinUp, HIGH);
             digitalWrite(pinDown, LOW);
             active = true;
+            latched = false;
         }
     }
 
-    boolean getActive()
+    void stopMovement()
+    {
+        if (active)
+        {
+            digitalWrite(pinUp, HIGH);
+            digitalWrite(pinDown, HIGH);
+            active = false;
+            latched = false;
+            // Serial.println("Movement stopped");
+        }
+    }
+
+    bool getActive()
     {
         return active;
     }
 
-    void setMillisOpened(int millis) {
+    bool getLatched()
+    {
+        return latched;
+    }
+
+    void setMillisOpened(int millis)
+    {
         millisOpened = millis;
     }
 
-    int getMaxMillisOpened() {
+    int getMaxMillisOpened()
+    {
         return maxMillisOpened;
     }
 };

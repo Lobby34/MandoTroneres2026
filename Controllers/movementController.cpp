@@ -64,5 +64,7 @@ void checkMovementCommand(DMX_Slave &dmx_slave, MotorLineal &motor, int manualCh
   }
 
   // ----- 4. DEFAULT -----
-  motor.stopMovement();
+  if (!motor.getLatched()) {
+    motor.stopMovement();
+  }
 }
