@@ -6,48 +6,61 @@ void checkMovementCommand(DMX_Slave &dmx_slave, MotorLineal &motor, int manualCh
   int mf = dmx_slave.getChannelValue(manualFixedChannel);
   int a = dmx_slave.getChannelValue(autoChannel);
 
-  // ----- 1. MANUAL MOVEMENT -----
+  // VARIABLES FOR MOVEMENT ZONES
   const int DEAD_LOW = 181;  // dead zone lower bound
   const int DEAD_HIGH = 199; // dead zone upper bound
+  const int LOWER_BOUNDRY = 128;
+  const int HIGHER_BOUNDRY = 255;
 
-  if (m >= 128 && m <= 180)
+  // PRIORITY CHECKING
+  if (m > LOWER_BOUNDRY)
   {
-    motor.startDownMovement();
-    return; // manual overrides everything else
-  }
-  else if (m >= 200 && m <= 255)
-  {
-    motor.startUpMovement();
-    return; // manual overrides everything else
-  }
-  else if (m >= DEAD_LOW && m <= DEAD_HIGH)
-  {
-    motor.stopMovement(); // dead zone, do nothing
-    return;
-  }
-  // else m < 128 → neutral, continue to next step
 
-  // ----- 2. MANUAL FIXED -----
-  if (mf >= 128 && mf <= 180)
-  {
-    motor.goDownMax();
-    return; // manual-fixed down
+    // ----- 1. MANUAL MOVEMENT -----
+    if (m >= LOWER_BOUNDRY && m < DEAD_LOW)
+    {
+      motor.startDownMovement();
+      return; // manual overrides everything else
+    }
+    else if (m > DEAD_HIGH && m <= HIGHER_BOUNDRY)
+    {
+      motor.startUpMovement();
+      return; // manual overrides everything else
+    }
+    else if (m >= DEAD_LOW && m <= DEAD_HIGH)
+    {
+      motor.stopMovement(); // dead zone, do nothing
+      return;
+    }
   }
-  else if (mf >= 200 && mf <= 255)
+  else if (mf > LOWER_BOUNDRY)
   {
-    motor.goUpMax();
-    return; // manual-fixed up
-  }
-  else if (mf >= DEAD_LOW && mf <= DEAD_HIGH)
-  {
-    return;
-  }
 
-  // ----- 3. AUTO MODE -----
-  if (a > 128)
+    // ----- 2. MANUAL FIXED -----
+    if (mf >= LOWER_BOUNDRY && mf < DEAD_LOW)
+    {
+      motor.goDownMax();
+      return; // manual-fixed down
+    }
+    else if (mf > DEAD_HIGH && mf <= HIGHER_BOUNDRY)
+    {
+      motor.goUpMax();
+      return; // manual-fixed up
+    }
+    else if (mf >= DEAD_LOW && mf <= DEAD_HIGH)
+    {
+      return;
+    }
+  }
+  else
   {
-    motor.startAutoMovement();
-    return;
+
+    // ----- 3. AUTO MODE -----
+    if (a > LOWER_BOUNDRY)
+    {
+      motor.startAutoMovement();
+      return;
+    }
   }
 
   // ----- 4. DEFAULT -----

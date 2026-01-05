@@ -25,9 +25,8 @@ MotorLineal leftMouth(MOTOR_1_A_PIN, MOTOR_1_B_PIN, MOTOR_1_MAX_MILLIS_OPENED);
 MotorLineal centralMouth(MOTOR_3_A_PIN, MOTOR_3_B_PIN, MOTOR_3_MAX_MILLIS_OPENED);
 MotorLineal rightMouth(MOTOR_4_A_PIN, MOTOR_4_B_PIN, MOTOR_4_MAX_MILLIS_OPENED);
 MotorLineal leftHead(MOTOR_2_A_PIN,MOTOR_2_B_PIN,MOTOR_2_MAX_MILLIS_OPENED);
+MotorLineal centralHead(MOTOR_6_A_PIN,MOTOR_6_B_PIN,MOTOR_6_MAX_MILLIS_OPENED);
 MotorLineal rightHead(MOTOR_5_A_PIN,MOTOR_5_B_PIN,MOTOR_5_MAX_MILLIS_OPENED);
-
-MotorPersiana centralHead(BLIND_1_A_PIN, BLIND_1_B_PIN, BLIND_1_C_PIN);
 
 // Show "Class"
 using TimelineEvent = struct
@@ -130,6 +129,7 @@ void loop()
         centralMouth.setMillisOpened(0);
         rightMouth.setMillisOpened(0);
         leftHead.setMillisOpened(0);
+        centralHead.setMillisOpened(0);
         rightHead.setMillisOpened(0);
       }
 
@@ -138,6 +138,7 @@ void loop()
       checkMovementCommand(dmx_slave, centralMouth, DMX_CENTRALMOUTH_MANUAL_CHANNEL,DMX_CENTRALMOUTH_MANUALFIXED_CHANNEL,DMX_CENTRALMOUTH_AUTO_CHANNEL);
       checkMovementCommand(dmx_slave, rightMouth, DMX_RIGHTMOUTH_MANUAL_CHANNEL,DMX_RIGHTMOUTH_MANUALFIXED_CHANNEL,DMX_RIGHTMOUTH_AUTO_CHANNEL);
       checkMovementCommand(dmx_slave, leftHead,DMX_LEFTHEAD_MANUAL_CHANNEL,DMX_LEFTHEAD_MANUALFIXED_CHANNEL,DMX_LEFTHEAD_AUTO_CHANNEL);
+      checkMovementCommand(dmx_slave, centralHead,DMX_CENTRALHEAD_MANUAL_CHANNEL,DMX_CENTRALHEAD_MANUALFIXED_CHANNEL,DMX_CENTRALHEAD_AUTO_CHANNEL);
       checkMovementCommand(dmx_slave, rightHead,DMX_RIGHTHEAD_MANUAL_CHANNEL,DMX_RIGHTHEAD_MANUALFIXED_CHANNEL,DMX_RIGHTHEAD_AUTO_CHANNEL);
     }
   }
