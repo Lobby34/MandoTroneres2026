@@ -42,7 +42,6 @@ public:
         tStop.setLtsPointer(static_cast<void *>(this));
 
         runner.addTask(tStop);
-        runner.addTask(tAuto);
     }
 
     // MOTOR FUNCTIONS AND LOGIC
@@ -154,7 +153,7 @@ public:
     void stopMovement()
     {
         digitalWrite(pinUp, HIGH);
-        ditialWrite(pinDown, HIGH);
+        digitalWrite(pinDown, HIGH);
         active = false;
     }
     
