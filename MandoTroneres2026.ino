@@ -113,6 +113,12 @@ void loop()
     // PRESHOW
     else if (dmx_slave.getChannelValue(DMX_PRESHOW_CHANNEL) > 192)
     {
+      leftMouth.goDownMax();
+      leftHead.goDownMax();
+      centralMouth.goDownMax();
+      centralHead.goDownMax();
+      rightMouth.goDownMax();
+      rightHead.goDownMax();
 
     }
     // EXAMPLE SHOW
