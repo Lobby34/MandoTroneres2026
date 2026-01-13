@@ -19,6 +19,8 @@ DMX_Slave dmx_slave(DMX_SLAVE_CHANNELS);
 // Variable Delaration
 Scheduler runner;           // Global – used by motorLineal
 boolean showActive = false; // Global - used to know if show is active
+int timelineIndex = 0;    // Global - to know the current position in the timeline
+unsigned long showStartTime = 0; // Global - to know when the show started
 
 // Object declaration
 MotorLineal leftMouth(MOTOR_1_A_PIN, MOTOR_1_B_PIN, MOTOR_1_MAX_MILLIS_OPENED);
@@ -73,15 +75,14 @@ const int numOfEventsInTimeline = sizeof(timeline) / sizeof(timeline[0]);
 Task tTimeline(
     10, -1, []
     {
-    static int index = 0;
-    unsigned long now = millis();
+    unsigned long elapsed = millis() - showStartTime;
 
-    while (index < numOfEventsInTimeline && timeline[index].timeMs <= now) {
-      timeline[index].action();
-      index++;
+    while (timelineIndex < numOfEventsInTimeline && timeline[timelineIndex].timeMs <= elapsed) {
+      timeline[timelineIndex].action();
+      timelineIndex++;
     }
 
-    if (index >= numOfEventsInTimeline) {
+    if (timelineIndex >= numOfEventsInTimeline) {
       tTimeline.disable();
     } },
     &runner, false);
@@ -103,11 +104,19 @@ void loop()
   // Task scheduler "move one step"
   runner.execute();
 
-  if (!showActive)
+  if (!tTimeline.isEnabled())
   {
     // SHOW
     if (dmx_slave.getChannelValue(DMX_SHOW_CHANNEL) > 192)
     {
+      //Reset timeline to start again
+      timelineIndex = 0;
+
+      //Mark current time as start time
+      showStartTime = millis();
+
+      //Start show by enabling timeline task
+      showActive = true;
       tTimeline.enable();
     }
     // PRESHOW
