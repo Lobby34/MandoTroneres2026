@@ -22,27 +22,26 @@ boolean showActive = false; // Global - used to know if show is active
 int timelineIndex = 0;    // Global - to know the current position in the timeline
 unsigned long showStartTime = 0; // Global - to know when the show started
 
-// Object declaration
-MotorLineal leftMouth(MOTOR_1_A_PIN, MOTOR_1_B_PIN, MOTOR_1_MAX_MILLIS_OPENED);
-MotorLineal centralMouth(MOTOR_3_A_PIN, MOTOR_3_B_PIN, MOTOR_3_MAX_MILLIS_OPENED);
-MotorLineal rightMouth(MOTOR_4_A_PIN, MOTOR_4_B_PIN, MOTOR_4_MAX_MILLIS_OPENED);
-MotorLineal leftHead(MOTOR_2_A_PIN,MOTOR_2_B_PIN,MOTOR_2_MAX_MILLIS_OPENED);
-MotorLineal centralHead(MOTOR_6_A_PIN,MOTOR_6_B_PIN,MOTOR_6_MAX_MILLIS_OPENED);
-MotorLineal rightHead(MOTOR_5_A_PIN,MOTOR_5_B_PIN,MOTOR_5_MAX_MILLIS_OPENED);
-
-// Show "Class"
-using TimelineEvent = struct
-{
+// Selected Show Timeline Event
+struct TimelineEvent {
   unsigned long timeMs;
   void (*action)();
 };
 
+TimelineEvent* currentTimeline = nullptr; //Pointer to current timeline
+int currentTimelineLength = 0;        //Length of current timeline
+
+// Object declaration
+MotorLineal leftMouth(MOTOR_1_A_PIN, MOTOR_1_B_PIN, MOTOR_1_MAX_MILLIS_OPENED);
+MotorLineal centralMouth(MOTOR_3_A_PIN, MOTOR_3_B_PIN, MOTOR_3_MAX_MILLIS_OPENED);
+MotorLineal rightMouth(MOTOR_5_A_PIN, MOTOR_5_B_PIN, MOTOR_5_MAX_MILLIS_OPENED);
+MotorLineal leftHead(MOTOR_2_A_PIN,MOTOR_2_B_PIN,MOTOR_2_MAX_MILLIS_OPENED);
+MotorLineal centralHead(MOTOR_4_A_PIN,MOTOR_4_B_PIN,MOTOR_4_MAX_MILLIS_OPENED);
+MotorLineal rightHead(MOTOR_6_A_PIN,MOTOR_6_B_PIN,MOTOR_6_MAX_MILLIS_OPENED);
+
 // Show Timeline
-TimelineEvent timeline[] = {
-    {0, []
-     {
-       showActive = true;
-     }},
+TimelineEvent mainShow[] = {
+    {0, []{showActive = true;}},
     {1000, []
      {
        leftMouth.goUpTimed(5000);
@@ -63,13 +62,37 @@ TimelineEvent timeline[] = {
      {
        leftMouth.goUpMax();
      }},
-    {21040, []
+    {15000, []
      {
        showActive = false;
      }}};
 
-// Calculate the space each position of the array takes
-const int numOfEventsInTimeline = sizeof(timeline) / sizeof(timeline[0]);
+TimelineEvent exampleShow[] = {
+  {0, [] {showActive = true; leftMouth.goUpMax(); centralMouth.goUpMax(); rightMouth.goUpMax(); leftHead.goUpMax(); rightHead.goUpMax();}},
+  {5000, [] {leftMouth.goDownMax(); centralMouth.goDownMax(); rightMouth.goDownMax();}},
+  {10000, [] {leftMouth.goUpMax(); rightMouth.goUpMax();}},
+  {13000, [] {centralMouth.goUpMax();}},
+  {15000, [] {leftMouth.goDownMax();}},
+  {18000, [] {rightMouth.goDownMax();}},
+  {19000, [] {centralMouth.goDownMax();}},
+  {25000, [] {leftMouth.goUpMax(); centralMouth.goUpMax(); rightMouth.goUpMax();}},
+  {30000, [] {leftMouth.goDownMax(); centralMouth.goDownMax(); rightMouth.goDownMax();}},
+  {35000, [] {centralMouth.goUpMax(); rightMouth.goUpMax();}},
+  {38000, [] {leftMouth.goUpMax();}},
+  {40000, [] {centralMouth.goDownMax();}},
+  {48000, [] {rightMouth.goDownMax();}},
+  {49000, [] {leftMouth.goDownMax();}},
+  {25000, [] {leftMouth.goUpMax(); centralMouth.goUpMax(); rightMouth.goUpMax();}},
+  {55000, [] {rightMouth.goDownMax(); leftMouth.goDownMax(); centralMouth.goDownMax();}},
+  {60000, [] {leftMouth.goUpMax(); centralMouth.goUpMax();}},
+  {63000, [] {rightMouth.goUpMax();}},
+  {65000, [] {leftMouth.goDownMax();}},
+  {72000, [] {centralMouth.goDownMax();}},
+  {73000, [] {rightMouth.goDownMax();}},
+  {80000, [] {leftMouth.startDownMovement(); centralMouth.startDownMovement(); rightMouth.startDownMovement();}},
+  {85000, [] {leftMouth.stopMovement(); centralMouth.stopMovement(); rightMouth.stopMovement();}},
+  {160000, [] {showActive = false;}}
+  };
 
 // Task declaration to run the showTimeline
 Task tTimeline(
@@ -77,15 +100,25 @@ Task tTimeline(
     {
     unsigned long elapsed = millis() - showStartTime;
 
-    while (timelineIndex < numOfEventsInTimeline && timeline[timelineIndex].timeMs <= elapsed) {
-      timeline[timelineIndex].action();
+    while (timelineIndex < currentTimelineLength && currentTimeline[timelineIndex].timeMs <= elapsed) {
+      currentTimeline[timelineIndex].action();
       timelineIndex++;
     }
 
-    if (timelineIndex >= numOfEventsInTimeline) {
+    if (timelineIndex >= currentTimelineLength) {
       tTimeline.disable();
+      showActive = false;
     } },
     &runner, false);
+
+void startTimeline(TimelineEvent* timelineArray, int length) {
+  currentTimeline = timelineArray;
+  currentTimelineLength = length;
+  timelineIndex = 0;
+  showStartTime = millis();
+  showActive = true;
+  tTimeline.enable();
+}
 
 void setup()
 {
@@ -95,8 +128,6 @@ void setup()
 
   // Inicialize task Scheduler
   runner.startNow();
-
-
 }
 
 void loop()
@@ -109,15 +140,7 @@ void loop()
     // SHOW
     if (dmx_slave.getChannelValue(DMX_SHOW_CHANNEL) > 192)
     {
-      //Reset timeline to start again
-      timelineIndex = 0;
-
-      //Mark current time as start time
-      showStartTime = millis();
-
-      //Start show by enabling timeline task
-      showActive = true;
-      tTimeline.enable();
+      startTimeline(mainShow, sizeof(mainShow) / sizeof(mainShow[0]));
     }
     // PRESHOW
     else if (dmx_slave.getChannelValue(DMX_PRESHOW_CHANNEL) > 192)
@@ -133,7 +156,7 @@ void loop()
     // EXAMPLE SHOW
     else if (dmx_slave.getChannelValue(DMX_EXAMPLESHOW_CHANNEL) > 192)
     {
-      
+      startTimeline(exampleShow, sizeof(exampleShow) / sizeof(exampleShow[0]));
     }
     else
     {
