@@ -119,12 +119,93 @@ TimelineEvent mainShow[] = {
     {265100, []{centralMouth.goUpMax();}},
     {266110, []{leftMouth.goDownMax();}},
     {267110, []{rightMouth.goDownMax();}},
-    {270110, []{centralMouth.goDownMax();}},
-    {271120, []{leftMouth.goUpMax();}},
-    {270000, []{ /*CHECKPOINT: STOP ALL MOVEMENT*/ }},
-    {280000, []
+    {272500, []{
+      leftMouth.startDownMovement(); rightMouth.startDownMovement(); 
+    }},
+    {274900, []{
+      leftMouth.stopMovement(); rightMouth.stopMovement(); 
+    }},
+    {275000, []{
+      leftHead.goUpMax(); rightMouth.goUpTimed(3000);
+    }},
+    {278000, []{
+      leftHead.goDownTimed(3000); rightMouth.goDownMax();
+    }},
+    {282000, []{
+      rightHead.goUpMax(); leftMouth.goUpTimed(3000);
+    }},
+    {285000, []{
+      rightHead.goDownTimed(3000); leftMouth.goDownMax();
+    }},
+    {289000, []{
+      leftMouth.goUpMax(); rightMouth.goUpMax(); centralMouth.goDownMax();
+    }},
+    {303500, []{
+      leftHead.goUpTimed(1500), rightHead.goUpTimed(1500); centralHead.goDownTimed(1500);
+    }},
+    {305000, []{
+      leftHead.goUpTimed(1500), rightHead.goUpTimed(1500); centralHead.goUpTimed(1500);
+    }},
+    {307000, []{
+      leftMouth.goDownMax(); rightMouth.goDownMax(); centralMouth.goUpMax();
+    }},
+    {311000, []{
+      leftHead.goDownTimed(3500); rightHead.goDownTimed(3500); centralHead.goDownMax(); leftMouth.goUpMax(); rightMouth.goUpMax(); centralMouth.goDownMax();
+    }},
+    {314510, []{
+      leftHead.goUpMax(); rightHead.goUpMax();
+    }},
+    {316010, []{
+      leftMouth.goDownMax(); rightMouth.goDownMax(); centralMouth.goUpMax();
+    }},
+    {318010, []{
+      centralHead.goUpMax();
+    }},
+    {318020, []{
+      leftHead.goDownTimed(3500); rightHead.goDownTimed(3500);
+    }},
+    {321020, []{
+      leftMouth.goUpMax(); rightMouth.goUpMax(); centralMouth.goDownMax();
+    }},
+    {321530, []{
+      leftHead.goUpMax(); rightHead.goUpMax();
+    }},
+    {325040, []{
+      leftHead.goDownTimed(3500); rightHead.goDownTimed(3500);
+    }},
+    {326030, []{
+      leftMouth.goDownMax(); rightMouth.goDownMax(); centralMouth.goUpMax();
+    }},
+    {328020, []{
+      centralHead.goDownMax();
+    }},
+    {328550, []{
+      leftHead.goUpMax(); rightHead.goUpMax();
+    }},
+    {331050, []{
+      leftMouth.goUpMax(); rightMouth.goUpMax(); centralMouth.goDownMax();
+    }},
+    {332060, []{
+      leftHead.goDownTimed(3500); rightHead.goDownTimed(3500);
+    }},
+    {335070, []{
+      leftHead.goUpMax(); rightHead.goUpMax();
+    }},
+    {336060, []{
+      leftMouth.goDownTimed(2940); rightMouth.goDownTimed(2940); centralMouth.startDownMovement();
+    }},
+    {338030, []{
+      centralHead.goUpMax();
+    }},
+    {338580, []{
+      leftHead.goDownTimed(1000); rightHead.goDownTimed(1000);
+    }},
+    {339000, []{
+      centralMouth.stopMovement(); /*STOOOOP*/
+    }},
+    {370000,[]{/*STOP*/}},
+    {380000, []
      { showActive = false; }}
-
 };
 
 TimelineEvent exampleShow[] = {
