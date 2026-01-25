@@ -42,30 +42,99 @@ MotorLineal rightHead(MOTOR_6_A_PIN,MOTOR_6_B_PIN,MOTOR_6_MAX_MILLIS_OPENED);
 // Show Timeline
 TimelineEvent mainShow[] = {
     {0, []{showActive = true;}},
-    {1000, []
+    {145000, []
      {
-       leftMouth.goUpTimed(5000);
+       centralHead.goDownMax();
      }},
-    {2300, []
-     {
-       centralMouth.goUpMax();
-     }},
-    {6010, []
-     {
-       leftMouth.goDownTimed(1000);
-     }},
-    {7020, []
-     {
-       leftMouth.goDownMax();
-     }},
-    {11030, []
-     {
-       leftMouth.goUpMax();
-     }},
-    {15000, []
-     {
-       showActive = false;
-     }}};
+     {182000, [] 
+      {
+        centralHead.goUpMax();
+        centralMouth.goUpMax();
+      }},
+      {187000, []
+       {
+         centralMouth.goDownMax();
+         leftHead.goDownMax();
+         leftMouth.goUpMax();
+       }},
+       {191000, [] {
+          rightHead.goDownMax();
+          rightMouth.goUpMax();
+       }},
+       {192000,[]{
+          centralMouth.goUpMax();
+          leftMouth.goDownMax();
+          leftHead.goUpMax();
+       }},
+       {196000,[]{
+          rightHead.goUpMax();
+          rightMouth.goDownMax();
+
+       }},
+       {197000,[]{
+          centralMouth.goDownMax();
+          leftMouth.goUpMax();
+          leftHead.goDownMax();
+       }},
+       {201000,[]{
+        rightMouth.goUpMax();
+        rightHead.goDownMax();
+       }},
+       {202000,[]{
+          centralMouth.goUpMax();
+          leftMouth.goDownMax();
+          leftHead.goUpMax();
+       }},
+       {206000,[]{
+        rightMouth.goDownTimed(2000);
+        rightHead.goUpTimed(2000);
+       }},
+       {207000,[]{
+          centralMouth.goDownMax();
+          leftMouth.goUpMax();
+          leftHead.goDownMax();
+       }},
+       {209000,[]{
+        rightMouth.goUpMax();
+        rightHead.goDownMax();
+       }},
+       {210000,[]{centralMouth.goUpMax();}},
+       {212000,[]{rightMouth.goDownMax();}},
+       {214000,[]{leftMouth.goDownMax();}},
+       {216000,[]{centralMouth.goDownMax();}},
+       {218000,[]{rightMouth.goUpMax();}},
+       {220000,[]{leftMouth.goUpMax();}},
+       {222000,[]{centralMouth.goUpMax();}},
+       {224000,[]{rightMouth.goDownMax();}},
+       {226000,[]{leftMouth.goDownMax();}},
+       {228000,[]{centralMouth.goDownMax();}},
+       {230000,[]{rightMouth.goUpMax();}},
+       {232000,[]{leftMouth.goUpMax();}},
+       {234000,[]{centralMouth.goUpMax();}},
+       {236000,[]{rightMouth.goDownMax();}},
+       {238000,[]{leftMouth.goDownMax();}},
+       {240000,[]{centralMouth.goDownMax();}},
+       {242000,[]{rightMouth.goUpMax();}},
+       {244000,[]{leftMouth.goUpMax();}},
+       {246000,[]{centralMouth.goUpMax();}},
+       {248000,[]{rightMouth.goDownMax();}},
+       {250000,[]{leftMouth.goDownMax();}},
+       {252000,[]{centralMouth.goDownMax();}},
+       {254000,[]{rightMouth.goUpMax();}},
+       {256000,[]{leftMouth.goUpMax();}},
+       {258000,[]{centralMouth.goUpMax();}},
+       {260000,[]{rightMouth.goDownMax();}},
+       {262000,[]{leftMouth.goDownMax();}},
+       {264000,[]{centralMouth.goDownMax();}},
+       {266000,[]{rightMouth.goUpMax();}},
+       {275000,[]{
+        rightHead.goUpMax();
+        leftHead.goUpMax();
+      }},
+      {279000,[]{centralHead.goDownMax();}},
+      {280000, []{showActive = false;}}
+       
+    };
 
 TimelineEvent exampleShow[] = {
   {0, [] {showActive = true; leftMouth.goUpMax(); centralMouth.goUpMax(); rightMouth.goUpMax(); leftHead.goUpMax(); rightHead.goUpMax();}},
@@ -146,11 +215,11 @@ void loop()
     else if (dmx_slave.getChannelValue(DMX_PRESHOW_CHANNEL) > 192)
     {
       leftMouth.goDownMax();
-      leftHead.goDownMax();
+      leftHead.goUpMax();
       centralMouth.goDownMax();
       centralHead.goDownMax();
       rightMouth.goDownMax();
-      rightHead.goDownMax();
+      rightHead.goUpMax();
 
     }
     // EXAMPLE SHOW
